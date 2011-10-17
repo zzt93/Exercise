@@ -1,0 +1,44 @@
+#include "type.h"
+void out_byte(uint32_t port, uint8_t value);
+uint8_t in_byte(uint32_t port);
+void disp_str(char *str);
+void TestA();
+void TestB();
+void TestC();
+void init_prot();
+void spurious_irq(int irq);
+void disp_int(int);
+void init_8259A();
+void disp_str(char *);
+void disp_color_str(char * info, int color);
+void delay(int);
+void restart();
+void put_irq_handler(int irq, void (*handler)(int));
+void enable_irq(int irq);
+void disable_irq(int irq);
+void clock_handler(int irq);
+void sys_call();
+int get_ticks();
+int sys_get_ticks();
+void schedule();
+void keyboard_handler(int irq);
+void init_keyboard();
+void init_clock();
+void enable_int();
+void disable_int();
+void keyboard_read();
+void task_tty();
+void in_process();
+void out_char(struct Console *, char);
+void init_screen(struct Tty *p_tty);
+void select_console(int nr_console);
+void scroll_screen(struct Console* p_con, int direction);
+int sys_write(char *buf, int len, struct Process *p_proc);
+void write(char *buf, int len);
+int printf(const char *fmt, ...);
+int vsprintf(char *, const char *, va_list);
+
+int strlen(char* p_str);
+char* strcpy(char* p_dst, char* p_src);
+
+char * itoa(char * str, int num);
