@@ -742,11 +742,114 @@
 (deriv '(* (* x y) (+ x 3)) 'x)
 
 
+;2.59
+(define (element-of-set? x set)
+  (cond ((null? set) #f)
+	((equal? x (car set)) #t)
+	(else (element-of-set? x (cdr set)))))
+
+(element-of-set? '1s '( 2 2 3 1s))
+
+(define (union-set set1 set2)
+  (cond ((null? set2) set1)
+	((if (element-of-set? (car set2) set1)
+	     (union-set set1 (cdr set2))
+	     (cons (car set2) (union-set set1 (cdr set2)))))))
+
+(union-set '( 1 2 3 9) '(1 2 3 4 5))
 
 
+;2.61
+(define (adjoin-set x set)
+  (cond ((< x (car set)) (cons x set))
+	((= x (car set)) set)
+	((> x (car set)) (cons (car set) (adjoin-set x (cdr set))))))
 
 
+;2.62
+(define (union-set set1 set2)
+  (cond ((null? set1) set2)
+	((null? set2) set1)
+	((< (car set1) (car set2)) (cons (car set1) (union-set (cdr set1) set2)))
+	((> (car set1) (car set2)) (cons (car set2) (union-set set1 (cdr set2))))
+	(else (cons (car set1) (union-set (cdr set1) (cdr set2))))))
 
-  
 
-	
+	    
+
+;2.65
+(define (union-ordered-list list1 list2)
+  (cond ((null? list1)
+	 list2)
+	((null? list2)
+	 list1)
+	((< (car list1) (car list2))
+	 (cons (car list1) (union-ordered-list (cdr list1) list2)))
+	((> (car list1) (car list2))
+	 (cons (car list2) (union-ordered-list list1 (cdr list2))))
+	(else
+	 (cons (car list1) (union-ordered-list (cdr list1) (cdr list2))))))
+
+(define (intersection-ordered-list list1 list2)
+  (cond ((or (null? list1) (null? list2))
+	 '())
+	((= (car list1) (car list2))
+	 (cons (car list1) (intersection-ordered-list (cdr list1) (cdr list2))))
+	((< (car list1) (car list2))
+	 (intersection-ordered-list (cdr list1) list2))
+	((> (car list1) (car list2))
+	 (intersection-ordered-list list1 (cdr list2)))))
+
+(define (entry tree) (car tree))
+(define (left-branch tree) (cadr tree))
+(define (right-branch tree) (caddr tree))
+(define (make-tree entry left right) (list entry left right))
+
+(define (tree->list tree)
+  (define (append list1 list2)
+    (if (null? list1)
+	list2
+	(cons (car list1) (append (cdr list1) list2))))
+  (if (null? tree)
+      '()
+      (append (tree->list (left-branch tree))
+	      (cons (entry tree)
+		    (tree->list (right-branch tree))))))
+
+(define (list->tree list-ordered)
+  (define (get-sublist list-ordered a n)
+    (define (get-firstn list-ordered n)
+      (if (= n 0)
+	  '()
+	  (cons (car list-ordered) (get-firstn (cdr list-ordered) (- n 1)))))
+    (cond ((= n 0) '())
+	  ((= a 1) (get-firstn list-ordered n))
+	  (else
+	   (get-sublist (cdr list-ordered) (- a 1) n))))
+  (if (null? list-ordered)
+      '()
+      (let ((n (length list-ordered)))
+	(let ((left-size (quotient (- n 1) 2)))
+	  (let ((right-size (- n (+ left-size 1))))
+	    (list (car (get-sublist list-ordered (+ left-size 1) 1))
+		  (list->tree (get-sublist list-ordered 1 left-size))
+		  (list->tree (get-sublist list-ordered (+ left-size 2) right-size))))))))
+
+
+(define (union-set set1 set2)
+  (list->tree (union-ordered-list (tree->list set1) (tree->list set2))))
+
+(define (intersection-set set1 set2)
+  (list->tree (intersection-ordered-list (tree->list set1) (tree->list set2))))
+
+;2.66
+
+(define (lookup key record-bitree)
+  (cond ((null? record-bitree)
+	 '()
+	 ((= key (entry record-bitree))
+	  key)
+	 ((< key (entry record-bitree))
+	  (lookup key (left-branch record-bitree)))
+	 (else
+	  (lookup key (right-branch record-bitree)))))
